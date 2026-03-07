@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.black,
+      backgroundColor: AppColors.offWhite,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -61,29 +61,22 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: const Icon(
-                    Icons.content_cut,
-                    color: AppColors.black,
-                    size: 60,
+                Center(
+                  child: Image.asset(
+                    "assets/images/logo/logo.png",
+                    width: 200,
+                    height: 200,
                   ),
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  'CHRIS COUTURE',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 8,
-                  ),
-                ),
+                // const SizedBox(height: 16),
+                // const Text(
+                //   'Bienvenue chez Chris Couture',
+                //   style: TextStyle(
+                //     color: Colors.black,
+                //     fontSize: 16,
+                //     fontWeight: FontWeight.bold,
+                //   ),
+                // ),
               ],
             ),
           ),

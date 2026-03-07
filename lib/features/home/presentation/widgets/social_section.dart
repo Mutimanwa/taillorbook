@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:taillorbook/core/theme/app_colors.dart';
 import 'package:taillorbook/core/theme/app_typography.dart';
+import 'package:taillorbook/core/widgets/skeleton_loader.dart';
 
 class SocialSection extends StatelessWidget {
-  const SocialSection({super.key});
+  final bool isLoading;
+  const SocialSection({super.key, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,16 @@ class SocialSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: 10,
             itemBuilder: (context, index) {
+              if (isLoading) {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: SkeletonLoader(
+                    width: 180,
+                    height: 180,
+                    borderRadius: 16,
+                  ),
+                );
+              }
               return Container(
                 width: 180,
                 margin: const EdgeInsets.only(right: 12),
@@ -40,7 +52,9 @@ class SocialSection extends StatelessWidget {
                   color: AppColors.greySubtle,
                   borderRadius: BorderRadius.circular(16),
                   image: const DecorationImage(
-                    image: NetworkImage('https://images.pexels.com/photos/6347549/pexels-photo-6347549.jpeg'),
+                    image: NetworkImage(
+                      'https://images.pexels.com/photos/6347549/pexels-photo-6347549.jpeg',
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),

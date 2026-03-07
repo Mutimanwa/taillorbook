@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:taillorbook/core/theme/app_colors.dart';
 import 'package:taillorbook/core/theme/app_typography.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatelessWidget {
+  const SignupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 60),
+              const SizedBox(height: 40),
               // Logo Placeholder
               Image.asset(
                 'assets/images/logo/logo.png',
@@ -25,23 +25,29 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                'Connectez-vous à votre compte',
+                'Créez votre compte',
                 style: AppTypography.titleMedium,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                'Ravie de vous revoir, veuillez entrer vos coordonnées.',
+                'Rejoignez l\'univers Chris Couture.',
                 style: AppTypography.bodyMedium,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
+              _buildLabel('Nom complet'),
+              const SizedBox(height: 8),
+              const TextField(
+                decoration: InputDecoration(hintText: 'Calvin Dev'),
+              ),
+              const SizedBox(height: 20),
               _buildLabel('Adresse Email'),
               const SizedBox(height: 8),
               const TextField(
                 decoration: InputDecoration(hintText: 'example@gmail.com'),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildLabel('Mot de passe'),
               const SizedBox(height: 8),
               const TextField(
@@ -51,47 +57,15 @@ class LoginScreen extends StatelessWidget {
                   suffixIcon: Icon(Icons.visibility_outlined, size: 20),
                 ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: true,
-                        onChanged: (v) {},
-                        activeColor: AppColors.black,
-                      ),
-                      Text(
-                        'Se souvenir de moi',
-                        style: AppTypography.bodyMedium,
-                      ),
-                    ],
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      context.push('/forget-password');
-                    },
-                    child: Text(
-                      'Mot de passe oublié ?',
-                      style: AppTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
                   HapticFeedback.lightImpact();
                   context.go('/home');
                 },
-                child: const Text('Se connecter'),
+                child: const Text('S\'inscrire'),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               Row(
                 children: [
                   const Expanded(child: Divider(color: AppColors.greySubtle)),
@@ -102,7 +76,7 @@ class LoginScreen extends StatelessWidget {
                   const Expanded(child: Divider(color: AppColors.greySubtle)),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -111,21 +85,21 @@ class LoginScreen extends StatelessWidget {
                   _socialIcon(Icons.apple, AppColors.black),
                 ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Vous n\'avez pas de compte ? ',
+                    'Vous avez déjà un compte ? ',
                     style: AppTypography.bodyMedium,
                   ),
                   GestureDetector(
                     onTap: () {
                       HapticFeedback.selectionClick();
-                      context.push('/signup');
+                      context.pop();
                     },
                     child: Text(
-                      'S\'inscrire',
+                      'Se connecter',
                       style: AppTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.black,
@@ -133,20 +107,6 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 32),
-              TextButton(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  context.go('/home');
-                },
-                child: Text(
-                  'Continuer en tant qu\'invité',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.black.withOpacity(0.5),
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
               ),
               const SizedBox(height: 40),
             ],

@@ -1,5 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:taillorbook/features/auth/presentation/screens/login_screen.dart';
+import 'package:taillorbook/features/auth/presentation/screens/signup_screen.dart';
+import 'package:taillorbook/features/auth/presentation/screens/forget_password_screen.dart';
 import 'package:taillorbook/features/home/presentation/screens/home_screen.dart';
 import 'package:taillorbook/features/products/presentation/screens/product_detail_screen.dart';
 import 'package:taillorbook/features/splash/presentation/screens/splash_screen.dart';
@@ -15,6 +17,11 @@ final goRouter = GoRouter(
       builder: (context, state) => const OnboardingScreen(),
     ),
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+    GoRoute(path: '/signup', builder: (context, state) => const SignupScreen()),
+    GoRoute(
+      path: '/forget-password',
+      builder: (context, state) => const ForgetPasswordScreen(),
+    ),
     GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
     GoRoute(
       path: '/product-detail',

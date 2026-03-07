@@ -17,15 +17,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<Map<String, String>> _pages = [
     {
       'title': 'L’élégance sur mesure',
-      'image': 'https://via.placeholder.com/800x1200',
+      'image': 'https://images.pexels.com/photos/167703/pexels-photo-167703.jpeg',
     },
     {
       'title': 'Chaque pièce raconte une histoire',
-      'image': 'https://via.placeholder.com/800x1201',
+      'image': 'https://images.pexels.com/photos/4614250/pexels-photo-4614250.jpeg',
     },
     {
       'title': 'Découvrez nos collections exclusives',
-      'image': 'https://via.placeholder.com/800x1202',
+      'image': 'https://images.pexels.com/photos/2737702/pexels-photo-2737702.jpeg',
     },
   ];
 

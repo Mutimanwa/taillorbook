@@ -112,10 +112,10 @@ class HomeView extends StatelessWidget {
           ),
         ),
         // Social Section
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 24.0),
-            child: SocialSection(),
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            child: SocialSection(isLoading: isLoading),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
