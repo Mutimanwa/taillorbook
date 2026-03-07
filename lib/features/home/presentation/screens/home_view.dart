@@ -6,7 +6,8 @@ import 'package:taillorbook/features/home/presentation/widgets/masonry_creations
 import 'package:taillorbook/core/widgets/skeleton_loader.dart';
 
 class HomeView extends StatelessWidget {
-  const HomeView({super.key});
+  final bool isAdmin;
+  const HomeView({super.key, this.isAdmin = false});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +44,9 @@ class HomeView extends StatelessWidget {
               color: AppColors.greySubtle,
               borderRadius: BorderRadius.circular(24),
               image: const DecorationImage(
-                image: NetworkImage('https://images.pexels.com/photos/265854/pexels-photo-265854.jpeg'),
+                image: NetworkImage(
+                  'https://images.pexels.com/photos/265854/pexels-photo-265854.jpeg',
+                ),
                 fit: BoxFit.cover,
               ),
             ),
@@ -102,10 +105,10 @@ class HomeView extends StatelessWidget {
           ),
         ),
         // Masonry Creations Section
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 24.0),
-            child: MasonryCreations(),
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            child: MasonryCreations(isAdmin: isAdmin),
           ),
         ),
         // Social Section
@@ -130,7 +133,9 @@ class HomeView extends StatelessWidget {
               color: AppColors.greySubtle,
               borderRadius: BorderRadius.circular(16),
               image: const DecorationImage(
-                image: NetworkImage('https://images.pexels.com/photos/6347546/pexels-photo-6347546.jpeg'),
+                image: NetworkImage(
+                  'https://images.pexels.com/photos/6347546/pexels-photo-6347546.jpeg',
+                ),
                 fit: BoxFit.cover,
               ),
             ),

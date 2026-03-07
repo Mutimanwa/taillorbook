@@ -17,8 +17,11 @@ class SkeletonLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AppColors.greySubtle,
-      highlightColor: Colors.white,
+      baseColor: AppColors.offWhite,
+      highlightColor: AppColors.beige.withOpacity(0.5),
+      period: const Duration(milliseconds: 1500),
+      direction: ShimmerDirection
+          .ltr, // Left to right is standard, but diagonal is achieved via gradient in highlight. Wait. ltr is fine.
       child: Container(
         width: width,
         height: height,

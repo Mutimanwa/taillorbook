@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taillorbook/core/theme/app_colors.dart';
 import 'package:taillorbook/core/theme/app_typography.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileView extends StatelessWidget {
   final bool isGuest;
@@ -92,6 +93,13 @@ class ProfileView extends StatelessWidget {
             _buildListTile(Icons.notifications_none, 'Notifications'),
             _buildListTile(Icons.info_outline, 'À propos de Chris Couture'),
 
+            const Divider(height: 40),
+            _buildListTile(
+              Icons.admin_panel_settings_outlined,
+              'Portail Admin',
+              onTap: () => context.push('/admin'),
+            ),
+
             if (!isGuest)
               _buildListTile(Icons.logout, 'Déconnexion', isDestructive: true),
           ],
@@ -112,6 +120,7 @@ class ProfileView extends StatelessWidget {
     IconData icon,
     String title, {
     bool isDestructive = false,
+    VoidCallback? onTap,
   }) {
     return ListTile(
       leading: Icon(icon, color: isDestructive ? Colors.red : AppColors.black),
@@ -120,7 +129,7 @@ class ProfileView extends StatelessWidget {
         style: TextStyle(color: isDestructive ? Colors.red : AppColors.black),
       ),
       trailing: const Icon(Icons.chevron_right, size: 20),
-      onTap: () {},
+      onTap: onTap ?? () {},
     );
   }
 }

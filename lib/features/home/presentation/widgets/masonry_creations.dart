@@ -3,7 +3,8 @@ import 'package:taillorbook/core/theme/app_colors.dart';
 import 'package:taillorbook/core/theme/app_typography.dart';
 
 class MasonryCreations extends StatelessWidget {
-  const MasonryCreations({super.key});
+  final bool isAdmin;
+  const MasonryCreations({super.key, this.isAdmin = false});
 
   @override
   Widget build(BuildContext context) {
@@ -50,16 +51,36 @@ class MasonryCreations extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          height: height,
-          decoration: BoxDecoration(
-            color: AppColors.greySubtle,
-            borderRadius: BorderRadius.circular(20),
-            image: const DecorationImage(
-              image: NetworkImage('https://images.pexels.com/photos/6347547/pexels-photo-6347547.jpeg'),
-              fit: BoxFit.cover,
+        Stack(
+          children: [
+            Container(
+              height: height,
+              decoration: BoxDecoration(
+                color: AppColors.greySubtle,
+                borderRadius: BorderRadius.circular(20),
+                image: const DecorationImage(
+                  image: NetworkImage(
+                    'https://images.pexels.com/photos/6347547/pexels-photo-6347547.jpeg',
+                  ),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
-          ),
+            if (isAdmin)
+              Positioned(
+                top: 10,
+                right: 10,
+                child: CircleAvatar(
+                  backgroundColor: Colors.white.withOpacity(0.9),
+                  radius: 16,
+                  child: const Icon(
+                    Icons.edit,
+                    size: 14,
+                    color: AppColors.black,
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 8),
         Text(title, style: AppTypography.labelLarge),

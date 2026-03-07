@@ -145,7 +145,7 @@ class _AdminHomeWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const HomeView(),
+        const HomeView(isAdmin: true),
         // Admin overlay button for the Hero section
         Positioned(
           top: 100,
