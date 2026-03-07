@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taillorbook/core/theme/app_colors.dart';
 import 'package:taillorbook/core/theme/app_typography.dart';
@@ -13,18 +13,23 @@ class LoginScreen extends StatelessWidget {
       backgroundColor: AppColors.offWhite,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 26.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 60),
-              SizedBox(
-                width: 200,
-                height: 150,
-                child: Image.asset(
-                  'assets/images/logo/logo.png',
-                  width: 200,
-                  height: 200,
+              // Logo Placeholder
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: AppColors.black,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.content_cut,
+                  color: AppColors.gold,
+                  size: 50,
                 ),
               ),
               const SizedBox(height: 32),
@@ -86,7 +91,10 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: () => context.go('/home'),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  context.go('/home');
+                },
                 child: const Text('Se connecter'),
               ),
               const SizedBox(height: 32),
@@ -104,9 +112,9 @@ class LoginScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _socialIcon(FontAwesomeIcons.google , AppColors.red),
-                  _socialIcon(FontAwesomeIcons.facebook, AppColors.primaryBlue),
-                  _socialIcon(FontAwesomeIcons.apple, AppColors.black),
+                  _socialIcon(Icons.g_mobiledata, AppColors.black),
+                  _socialIcon(Icons.facebook, AppColors.black),
+                  _socialIcon(Icons.apple, AppColors.black),
                 ],
               ),
               const SizedBox(height: 40),
@@ -118,7 +126,9 @@ class LoginScreen extends StatelessWidget {
                     style: AppTypography.bodyMedium,
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                    },
                     child: Text(
                       'S\'inscrire',
                       style: AppTypography.bodyMedium.copyWith(
@@ -128,6 +138,20 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 32),
+              TextButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  context.go('/home');
+                },
+                child: Text(
+                  'Continuer en tant qu\'invité',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.black.withOpacity(0.5),
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
               const SizedBox(height: 40),
             ],
@@ -152,22 +176,14 @@ class LoginScreen extends StatelessWidget {
 
   Widget _socialIcon(IconData icon, Color color) {
     return Container(
-      width: 40,
-      height: 40,
+      width: 60,
+      height: 60,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.greySubtle),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
-      child: Icon(icon, color: color, size: 20),
+      child: Icon(icon, color: color, size: 30),
     );
   }
-
 }

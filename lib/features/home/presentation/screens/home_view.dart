@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:taillorbook/core/theme/app_colors.dart';
 import 'package:taillorbook/core/theme/app_typography.dart';
+import 'package:taillorbook/features/home/presentation/widgets/social_section.dart';
+import 'package:taillorbook/features/home/presentation/widgets/masonry_creations.dart';
+import 'package:taillorbook/core/widgets/skeleton_loader.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    const bool isLoading = false; // Mock loading state
+
+    if (isLoading) {
+      return _buildLoading();
+    }
+
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -34,7 +43,7 @@ class HomeView extends StatelessWidget {
               color: AppColors.greySubtle,
               borderRadius: BorderRadius.circular(24),
               image: const DecorationImage(
-                image: NetworkImage('https://via.placeholder.com/800x1200'),
+                image: NetworkImage('https://images.pexels.com/photos/265854/pexels-photo-265854.jpeg'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -92,6 +101,20 @@ class HomeView extends StatelessWidget {
             }, childCount: 4),
           ),
         ),
+        // Masonry Creations Section
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 24.0),
+            child: MasonryCreations(),
+          ),
+        ),
+        // Social Section
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 24.0),
+            child: SocialSection(),
+          ),
+        ),
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
     );
@@ -107,7 +130,7 @@ class HomeView extends StatelessWidget {
               color: AppColors.greySubtle,
               borderRadius: BorderRadius.circular(16),
               image: const DecorationImage(
-                image: NetworkImage('https://via.placeholder.com/400x600'),
+                image: NetworkImage('https://images.pexels.com/photos/6347546/pexels-photo-6347546.jpeg'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -117,6 +140,43 @@ class HomeView extends StatelessWidget {
         Text('Collection Été ${2024 - index}', style: AppTypography.labelLarge),
         Text('12 Pièces', style: AppTypography.bodyMedium),
       ],
+    );
+  }
+
+  Widget _buildLoading() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 60),
+          const SkeletonLoader(
+            width: double.infinity,
+            height: 400,
+            borderRadius: 24,
+          ),
+          const SizedBox(height: 40),
+          const SkeletonLoader(width: 200, height: 30),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: const SkeletonLoader(
+                  width: double.infinity,
+                  height: 250,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: const SkeletonLoader(
+                  width: double.infinity,
+                  height: 250,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
