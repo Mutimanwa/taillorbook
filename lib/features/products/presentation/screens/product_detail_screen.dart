@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:taillorbook/core/theme/app_colors.dart';
 import 'package:taillorbook/core/theme/app_typography.dart';
 import 'package:taillorbook/core/widgets/skeleton_loader.dart';
@@ -22,16 +23,24 @@ class ProductDetailScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.7,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: AppColors.greySubtle,
-              image: DecorationImage(
-                image: NetworkImage(
-                  'https://images.pexels.com/photos/6347547/pexels-photo-6347547.jpeg',
+          Semantics(
+            label:
+                'Image détaillée du produit : Robe de Soirée Étoilée. Appuyez pour agrandir.',
+            image: true,
+            child: GestureDetector(
+              onTap: () => context.push('/product-gallery'),
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.7,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: AppColors.greySubtle,
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      'https://images.pexels.com/photos/6347547/pexels-photo-6347547.jpeg',
+                    ),
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                fit: BoxFit.cover,
               ),
             ),
           ),
@@ -42,6 +51,7 @@ class ProductDetailScreen extends StatelessWidget {
               backgroundColor: Colors.white.withOpacity(0.8),
               child: IconButton(
                 onPressed: () => Navigator.pop(context),
+                tooltip: 'Retour',
                 icon: const Icon(Icons.arrow_back, color: AppColors.black),
               ),
             ),
@@ -88,6 +98,7 @@ class ProductDetailScreen extends StatelessWidget {
                         ),
                         IconButton(
                           onPressed: () => _handleFavorite(context),
+                          tooltip: 'Ajouter aux favoris',
                           icon: const Icon(
                             Icons.favorite_border,
                             size: 30,
@@ -104,7 +115,7 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                     const Spacer(),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => context.push('/book-appointment'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.black,
                         minimumSize: const Size(double.infinity, 64),

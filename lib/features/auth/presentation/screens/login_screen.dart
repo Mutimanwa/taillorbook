@@ -18,10 +18,11 @@ class LoginScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 60),
-              // Logo Placeholder
-              Image.asset(
-                'assets/images/logo/logo.png',
-                width: 200,
+              // Logo
+              Semantics(
+                label: 'Logo Chris Couture',
+                image: true,
+                child: Image.asset('assets/images/logo/logo.png', width: 200),
               ),
               const SizedBox(height: 32),
               Text(
@@ -124,11 +125,15 @@ class LoginScreen extends StatelessWidget {
                       HapticFeedback.selectionClick();
                       context.push('/signup');
                     },
-                    child: Text(
-                      'S\'inscrire',
-                      style: AppTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.black,
+                    child: Semantics(
+                      label: 'Bouton S\'inscrire',
+                      button: true,
+                      child: Text(
+                        'S\'inscrire',
+                        style: AppTypography.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.black,
+                        ),
                       ),
                     ),
                   ),

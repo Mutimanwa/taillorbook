@@ -18,11 +18,19 @@ class SocialSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Suivez-nous', style: AppTypography.titleMedium),
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.camera_alt_outlined, size: 20),
-                  SizedBox(width: 8),
-                  Icon(Icons.facebook_outlined, size: 20),
+                  Semantics(
+                    label: 'Instagram',
+                    button: true,
+                    child: const Icon(Icons.camera_alt_outlined, size: 20),
+                  ),
+                  const SizedBox(width: 8),
+                  Semantics(
+                    label: 'Facebook',
+                    button: true,
+                    child: const Icon(Icons.facebook_outlined, size: 20),
+                  ),
                 ],
               ),
             ],
@@ -45,33 +53,37 @@ class SocialSection extends StatelessWidget {
                   ),
                 );
               }
-              return Container(
-                width: 180,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.greySubtle,
-                  borderRadius: BorderRadius.circular(16),
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                      'https://images.pexels.com/photos/6347549/pexels-photo-6347549.jpeg',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: Icon(
-                        index % 2 == 0
-                            ? Icons.play_circle_outline
-                            : Icons.collections_outlined,
-                        color: Colors.white70,
-                        size: 20,
+              return Semantics(
+                label: 'Post social Chris Couture numéro ${index + 1}',
+                image: true,
+                child: Container(
+                  width: 180,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.greySubtle,
+                    borderRadius: BorderRadius.circular(16),
+                    image: const DecorationImage(
+                      image: NetworkImage(
+                        'https://images.pexels.com/photos/6347549/pexels-photo-6347549.jpeg',
                       ),
+                      fit: BoxFit.cover,
                     ),
-                  ],
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: Icon(
+                          index % 2 == 0
+                              ? Icons.play_circle_outline
+                              : Icons.collections_outlined,
+                          color: Colors.white70,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

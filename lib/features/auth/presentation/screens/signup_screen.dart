@@ -18,10 +18,11 @@ class SignupScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              // Logo Placeholder
-              Image.asset(
-                'assets/images/logo/logo.png',
-                width: 200,
+              // Logo
+              Semantics(
+                label: 'Logo Chris Couture',
+                image: true,
+                child: Image.asset('assets/images/logo/logo.png', width: 200),
               ),
               const SizedBox(height: 32),
               Text(
@@ -98,11 +99,15 @@ class SignupScreen extends StatelessWidget {
                       HapticFeedback.selectionClick();
                       context.pop();
                     },
-                    child: Text(
-                      'Se connecter',
-                      style: AppTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.black,
+                    child: Semantics(
+                      label: 'Bouton Se connecter',
+                      button: true,
+                      child: Text(
+                        'Se connecter',
+                        style: AppTypography.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.black,
+                        ),
                       ),
                     ),
                   ),

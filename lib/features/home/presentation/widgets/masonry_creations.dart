@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taillorbook/core/theme/app_colors.dart';
 import 'package:taillorbook/core/theme/app_typography.dart';
+import 'package:go_router/go_router.dart';
 
 class MasonryCreations extends StatelessWidget {
   final bool isAdmin;
@@ -22,21 +23,20 @@ class MasonryCreations extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    _buildItem(300, 'Robe Longue Silk'),
+                    _buildItem(context, 300, 'Robe Longue Silk'),
                     const SizedBox(height: 16),
-                    _buildItem(200, 'Veste de Smoking'),
+                    _buildItem(context, 200, 'Veste de Smoking'),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
               const SizedBox(width: 16),
               // Column 2
               Expanded(
                 child: Column(
                   children: [
-                    _buildItem(200, 'Top Satin'),
+                    _buildItem(context, 200, 'Top Satin'),
                     const SizedBox(height: 16),
-                    _buildItem(300, 'Pantalon Palazzo'),
+                    _buildItem(context, 300, 'Pantalon Palazzo'),
                   ],
                 ),
               ),
@@ -47,44 +47,47 @@ class MasonryCreations extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(double height, String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Stack(
-          children: [
-            Container(
-              height: height,
-              decoration: BoxDecoration(
-                color: AppColors.greySubtle,
-                borderRadius: BorderRadius.circular(20),
-                image: const DecorationImage(
-                  image: NetworkImage(
-                    'https://images.pexels.com/photos/6347547/pexels-photo-6347547.jpeg',
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            if (isAdmin)
-              Positioned(
-                top: 10,
-                right: 10,
-                child: CircleAvatar(
-                  backgroundColor: Colors.white.withOpacity(0.9),
-                  radius: 16,
-                  child: const Icon(
-                    Icons.edit,
-                    size: 14,
-                    color: AppColors.black,
+  Widget _buildItem(BuildContext context, double height, String title) {
+    return GestureDetector(
+      onTap: () => context.push('/product-detail'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              Container(
+                height: height,
+                decoration: BoxDecoration(
+                  color: AppColors.greySubtle,
+                  borderRadius: BorderRadius.circular(20),
+                  image: const DecorationImage(
+                    image: NetworkImage(
+                      'https://images.pexels.com/photos/6347547/pexels-photo-6347547.jpeg',
+                    ),
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text(title, style: AppTypography.labelLarge),
-      ],
+              if (isAdmin)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white.withOpacity(0.9),
+                    radius: 16,
+                    child: const Icon(
+                      Icons.edit,
+                      size: 14,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(title, style: AppTypography.labelLarge),
+        ],
+      ),
     );
   }
 }

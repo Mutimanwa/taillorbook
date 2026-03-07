@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:taillorbook/core/theme/app_colors.dart';
+import 'package:go_router/go_router.dart';
 import 'package:taillorbook/core/theme/app_typography.dart';
 import 'package:taillorbook/features/home/presentation/widgets/social_section.dart';
 import 'package:taillorbook/features/home/presentation/widgets/masonry_creations.dart';
 import 'package:taillorbook/core/widgets/skeleton_loader.dart';
+import 'package:taillorbook/features/home/presentation/widgets/hero_carousel.dart';
+import 'package:taillorbook/core/widgets/product_card.dart';
 
 class HomeView extends StatelessWidget {
   final bool isAdmin;
@@ -28,55 +30,21 @@ class HomeView extends StatelessWidget {
             style: AppTypography.titleMedium.copyWith(letterSpacing: 4),
           ),
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
             IconButton(
-              onPressed: () {},
+              onPressed: () => context.push('/search'),
+              tooltip: 'Rechercher',
+              icon: const Icon(Icons.search),
+            ),
+            IconButton(
+              onPressed: () => context.push('/notifications'),
+              tooltip: 'Notifications',
               icon: const Icon(Icons.notifications_none),
             ),
           ],
         ),
-        SliverToBoxAdapter(
-          child: Container(
-            height: 500,
-            width: double.infinity,
-            margin: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.greySubtle,
-              borderRadius: BorderRadius.circular(24),
-              image: const DecorationImage(
-                image: NetworkImage(
-                  'https://images.pexels.com/photos/265854/pexels-photo-265854.jpeg',
-                ),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  bottom: 30,
-                  left: 30,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'NOUVELLE COLLECTION',
-                        style: AppTypography.labelLarge.copyWith(
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Élégance Intemporelle',
-                        style: AppTypography.titleLarge.copyWith(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+        const SliverPadding(
+          padding: EdgeInsets.only(top: 16),
+          sliver: SliverToBoxAdapter(child: HeroCarousel()),
         ),
         SliverToBoxAdapter(
           child: Padding(
@@ -85,7 +53,12 @@ class HomeView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Nos Collections', style: AppTypography.titleMedium),
-                TextButton(onPressed: () {}, child: const Text('Voir tout')),
+                TextButton(
+                  onPressed: () {
+                    context.push('/collections');
+                  },
+                  child: const Text('Voir tout'),
+                ),
               ],
             ),
           ),
@@ -100,7 +73,7 @@ class HomeView extends StatelessWidget {
               childAspectRatio: 0.7,
             ),
             delegate: SliverChildBuilderDelegate((context, index) {
-              return _buildCollectionCard(index);
+              return _buildCollectionCard(context, index);
             }, childCount: 4),
           ),
         ),
@@ -123,28 +96,13 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildCollectionCard(int index) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.greySubtle,
-              borderRadius: BorderRadius.circular(16),
-              image: const DecorationImage(
-                image: NetworkImage(
-                  'https://images.pexels.com/photos/6347546/pexels-photo-6347546.jpeg',
-                ),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text('Collection Été ${2024 - index}', style: AppTypography.labelLarge),
-        Text('12 Pièces', style: AppTypography.bodyMedium),
-      ],
+  Widget _buildCollectionCard(BuildContext context, int index) {
+    return ProductCard(
+      imageUrl:
+          'https://images.pexels.com/photos/6347546/pexels-photo-6347546.jpeg',
+      title: 'Collection Été ${2024 - index}',
+      subtitle: '12 Pièces',
+      onTap: () => context.push('/product-gallery'),
     );
   }
 
