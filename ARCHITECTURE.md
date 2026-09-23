@@ -283,7 +283,7 @@ charges pour les images).
 | # | Phase | Contenu | État |
 |---|---|---|---|
 | 1 | **Socle** | Setup, design system, architecture, config Firebase robuste, navigation 5 onglets, panier v1 fonctionnel, CI d'analyse | ✅ **Réalisée** |
-| 2 | Authentification & rôles | Login/Register/Forgot, rôles client/vendeur, `users/{uid}`, guards de routes | ⏭ À venir |
+| 2 | **Authentification & rôles** | Login/Register (client ou vendeur + WhatsApp), Forgot Password, `users/{uid}`, contrôleur AsyncValue, guards de pages d'auth, profil réel + badge rôle, prompt connexion sur les commandes | ✅ **Réalisée** |
 | 3 | Modèles & catalogue interne | Tous les `fromMap/toMap`, catégories, `ProductRepository` | ⏭ À venir |
 | 4 | Upload ImgBB | `ImgbbService` + `ImageUploadResult`, clé via `--dart-define` | ⏭ À venir |
 | 5 | Espace vendeur | Dashboard, CRUD produits, sécurité propriétaire | ⏭ À venir |

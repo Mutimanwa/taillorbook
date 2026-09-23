@@ -6,16 +6,21 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/theme/app_typography.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_enums.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_loading.dart';
+import '../../../../models/user_model.dart';
 import '../../../../state/app/app_state.dart';
 import '../../../../state/auth/auth_providers.dart';
 
-/// Onglet Profil : carte de compte (invité ou connecté), préférences
-/// (thème clair/sombre), accès aux commandes et à l'espace vendeur.
+/// Onglet Profil : carte de compte (invité ou connecté, avec badge de rôle),
+/// préférences (thème clair/sombre), accès aux commandes et à l'espace
+/// vendeur pour les vendeurs.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -23,88 +28,90 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<User?> authState = ref.watch(authStateProvider);
     final User? user = authState.valueOrNull;
+    final UserModel? profile = ref.watch(userProfileProvider).valueOrNull;
     final ThemeMode themeMode = ref.watch(themeModeProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mon profil')),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.pagePadding),
-        children: <Widget>[
-          _ProfileHeaderCard(user: user),
-          const SizedBox(height: AppSpacing.lg),
-          if (user == null)
-            ...<Widget>[
-              AppButton(
-                label: 'Se connecter',
-                icon: Icons.login_rounded,
-                onPressed: () => context
-                    .showAppSnack("L'authentification sera disponible très bientôt."),
-              ),
-              const SizedBox(height: 10),
-              AppButton(
-                label: 'Créer un compte',
-                variant: AppButtonVariant.outline,
-                icon: Icons.person_add_alt_rounded,
-                onPressed: () => context
-                    .showAppSnack("L'authentification sera disponible très bientôt."),
-              ),
-            ]
-          else
-            ...<Widget>[
-              AppButton(
-                label: 'Se déconnecter',
-                variant: AppButtonVariant.danger,
-                icon: Icons.logout_rounded,
-                onPressed: () => _confirmSignOut(context, ref),
-              ),
-            ],
-          const SizedBox(height: AppSpacing.xl),
-          Text(
-            'PRÉFÉRENCES',
-            style: context.appTextTheme.labelSmall?.copyWith(letterSpacing: 1.2),
-          ),
-          const SizedBox(height: 10),
-          _SettingsCard(
-            children: <Widget>[
-              SwitchListTile(
-                value: themeMode == ThemeMode.dark,
-                onChanged: (bool value) {
-                  ref.read(themeModeProvider.notifier).state =
-                      value ? ThemeMode.dark : ThemeMode.light;
-                },
-                secondary: const Icon(Icons.dark_mode_outlined),
-                title: const Text('Mode sombre'),
-                subtitle: const Text("Basculer entre thème clair et sombre"),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _SettingsCard(
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.receipt_long_outlined),
-                title: const Text('Mes commandes'),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => context.go(AppRoutes.orders),
-              ),
-              ListTile(
-                leading: const Icon(Icons.storefront_outlined),
-                title: const Text('Devenir vendeur'),
-                subtitle: const Text('Publiez et gérez vos propres produits'),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => context
-                    .showAppSnack("L'espace vendeur sera disponible très bientôt."),
-              ),
-              ListTile(
-                leading: const Icon(Icons.info_outline_rounded),
-                title: const Text('À propos'),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => _showAbout(context),
-              ),
-            ],
-          ),
-        ],
-      ),
+      body: authState.isLoading
+          ? const AppLoading(message: 'Chargement du profil…')
+          : ListView(
+              padding: const EdgeInsets.all(AppSpacing.pagePadding),
+              children: <Widget>[
+                _ProfileHeaderCard(user: user, profile: profile),
+                const SizedBox(height: AppSpacing.lg),
+                if (user == null) ...<Widget>[
+                  AppButton(
+                    label: 'Se connecter',
+                    icon: Icons.login_rounded,
+                    onPressed: () => context.push(AppRoutes.login),
+                  ),
+                  const SizedBox(height: 10),
+                  AppButton(
+                    label: 'Créer un compte',
+                    variant: AppButtonVariant.outline,
+                    icon: Icons.person_add_alt_rounded,
+                    onPressed: () => context.push(AppRoutes.register),
+                  ),
+                ] else ...<Widget>[
+                  if (profile?.role == UserRole.seller)
+                    AppButton(
+                      label: 'Mon espace vendeur',
+                      variant: AppButtonVariant.secondary,
+                      icon: Icons.storefront_rounded,
+                      onPressed: () => context.showAppSnack(
+                        "L'espace vendeur arrive à la phase 5 du projet.",
+                      ),
+                    ),
+                  if (profile?.role == UserRole.seller)
+                    const SizedBox(height: 10),
+                  AppButton(
+                    label: 'Se déconnecter',
+                    variant: AppButtonVariant.danger,
+                    icon: Icons.logout_rounded,
+                    onPressed: () => _confirmSignOut(context, ref),
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.xl),
+                Text(
+                  'PRÉFÉRENCES',
+                  style: context.appTextTheme.labelSmall
+                      ?.copyWith(letterSpacing: 1.2),
+                ),
+                const SizedBox(height: 10),
+                _SettingsCard(
+                  children: <Widget>[
+                    SwitchListTile(
+                      value: themeMode == ThemeMode.dark,
+                      onChanged: (bool value) {
+                        ref.read(themeModeProvider.notifier).state =
+                            value ? ThemeMode.dark : ThemeMode.light;
+                      },
+                      secondary: const Icon(Icons.dark_mode_outlined),
+                      title: const Text('Mode sombre'),
+                      subtitle: const Text('Basculer entre thème clair et sombre'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _SettingsCard(
+                  children: <Widget>[
+                    ListTile(
+                      leading: const Icon(Icons.receipt_long_outlined),
+                      title: const Text('Mes commandes'),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.go(AppRoutes.orders),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.info_outline_rounded),
+                      title: const Text('À propos'),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => _showAbout(context),
+                    ),
+                  ],
+                ),
+              ],
+            ),
     );
   }
 
@@ -116,7 +123,9 @@ class ProfileScreen extends ConsumerWidget {
       destructive: true,
     );
     if (!confirmed) return;
-    await ref.read(firebaseAuthServiceProvider).signOut();
+    await ref.read(authControllerProvider.notifier).signOut();
+    if (!context.mounted) return;
+    context.showAppSnack('Vous êtes déconnecté. À bientôt !');
   }
 
   void _showAbout(BuildContext context) {
@@ -166,16 +175,22 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-/// Carte d'en-tête : avatar, nom, email ou message invité.
+/// Carte d'en-tête : avatar, nom, email et badge de rôle (client/vendeur).
 class _ProfileHeaderCard extends StatelessWidget {
-  const _ProfileHeaderCard({required this.user});
+  const _ProfileHeaderCard({required this.user, required this.profile});
 
   final User? user;
+  final UserModel? profile;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = context.appColorScheme;
-    final String? photoUrl = user?.photoURL;
+    final String? photoUrl = user?.photoURL ?? profile?.profileImageUrl;
+    final String name = profile?.name.isNotEmpty == true
+        ? profile!.name
+        : (user?.displayName ?? 'Invité');
+    final String email = user?.email ?? profile?.email ?? 'Connectez-vous pour acheter et vendre.';
+    final UserRole role = profile?.role ?? UserRole.client;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.cardPadding),
@@ -191,7 +206,10 @@ class _ProfileHeaderCard extends StatelessWidget {
             backgroundColor: AppColors.primarySoft,
             backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
             child: photoUrl == null
-                ? const Icon(Icons.person_rounded, size: 30, color: AppColors.primary)
+                ? Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                    style: AppTypography.headlineSmall(color: AppColors.primary),
+                  )
                 : null,
           ),
           const SizedBox(width: 14),
@@ -200,18 +218,53 @@ class _ProfileHeaderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  user?.displayName ?? 'Invité',
+                  name,
                   style: context.appTextTheme.titleLarge,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  user?.email ?? 'Connectez-vous pour acheter et vendre.',
+                  email,
                   style: context.appTextTheme.bodySmall,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (user != null) ...<Widget>[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: role == UserRole.seller
+                          ? AppColors.secondarySoft
+                          : AppColors.primarySoft,
+                      borderRadius: AppRadius.rFull,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Icon(
+                          role == UserRole.seller
+                              ? Icons.storefront_rounded
+                              : Icons.shopping_bag_rounded,
+                          size: 13,
+                          color: role == UserRole.seller
+                              ? AppColors.secondary
+                              : AppColors.primary,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          role.label,
+                          style: AppTypography.labelSmall(
+                            color: role == UserRole.seller
+                                ? AppColors.secondary
+                                : AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
