@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart'
-    show FirebaseAuthException, User;
+    show FirebaseAuthException, User, UserCredential;
 
 import '../core/constants/app_enums.dart';
 import '../core/errors/app_exceptions.dart';
@@ -99,7 +99,7 @@ class AuthRepository {
   Future<void> signOut() => _authService.signOut();
 
   /// Traduction des codes d'erreur Firebase Auth en messages lisibles.
-  AuthException _mapAuthError(FirebaseAuthException error) {
+  AppException _mapAuthError(FirebaseAuthException error) {
     return switch (error.code) {
       'invalid-credential' ||
       'wrong-password' ||

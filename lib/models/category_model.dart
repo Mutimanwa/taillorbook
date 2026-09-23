@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../core/utils/timestamp_utils.dart';
 
 /// Catégorie de la marketplace (`categories/{categoryId}`).

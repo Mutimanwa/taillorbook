@@ -6,7 +6,6 @@ import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_radius.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
-import '../constants/app_enums.dart';
 import '../extensions/context_extensions.dart';
 import '../../models/cart_item_model.dart';
 import '../../models/product_model.dart';

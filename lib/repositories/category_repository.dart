@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseException;
+import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseException, QuerySnapshot, QueryDocumentSnapshot;
 
 import '../config/firebase/firebase_bootstrap.dart';
 import '../core/constants/firestore_collections.dart';
@@ -52,7 +52,7 @@ class CategoryRepository {
             a.sortOrder.compareTo(b.sortOrder));
       return categories;
     } on FirebaseException catch (error) {
-      throw FirestoreException(code: error.code);
+      throw FirestoreException(error.code);
     }
   }
 }

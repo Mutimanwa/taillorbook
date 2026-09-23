@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart' show FieldValue;
+import 'package:cloud_firestore/cloud_firestore.dart' show FieldValue, CollectionReference, FirebaseException, DocumentSnapshot, SetOptions;
 
 import '../config/firebase/firebase_bootstrap.dart';
 import '../core/constants/firestore_collections.dart';
@@ -24,7 +24,7 @@ class UserRepository {
       if (user.createdAt == null) data['createdAt'] = FieldValue.serverTimestamp();
       await _users.doc(user.id).set(data, SetOptions(merge: true));
     } on FirebaseException catch (error) {
-      throw FirestoreException(code: error.code);
+      throw FirestoreException( error.code);
     }
   }
 
@@ -47,7 +47,7 @@ class UserRepository {
       if (!snapshot.exists || snapshot.data() == null) return null;
       return UserModel.fromMap(snapshot.data()!, id: uid);
     } on FirebaseException catch (error) {
-      throw FirestoreException(code: error.code);
+      throw FirestoreException( error.code);
     }
   }
 }

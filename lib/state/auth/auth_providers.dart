@@ -91,7 +91,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
     required String password,
   }) async {
     state = const AsyncValue<void>.loading();
-    final AsyncValue<void> result = await AsyncValue<void>.guard(() async {
+    final AsyncValue<void> result = await AsyncValue.guard<void>(() async {
       await ref
           .read(authRepositoryProvider)
           .signIn(email: email, password: password);
@@ -110,7 +110,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
     String whatsappNumber = '',
   }) async {
     state = const AsyncValue<void>.loading();
-    final AsyncValue<void> result = await AsyncValue<void>.guard(() async {
+    final AsyncValue<void> result = await AsyncValue.guard<void>(() async {
       await ref.read(authRepositoryProvider).register(
             name: name,
             email: email,
@@ -127,7 +127,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
   /// Envoie l'email de réinitialisation. Renvoie `true` en cas de succès.
   Future<bool> sendPasswordReset({required String email}) async {
     state = const AsyncValue<void>.loading();
-    final AsyncValue<void> result = await AsyncValue<void>.guard(() async {
+    final AsyncValue<void> result = await AsyncValue.guard<void>(() async {
       await ref.read(authRepositoryProvider).sendPasswordReset(email: email);
     });
     state = result.hasError ? result : const AsyncValue<void>.data(null);

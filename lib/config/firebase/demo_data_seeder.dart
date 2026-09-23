@@ -1,7 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseException, WriteBatch;
+import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseException, WriteBatch, QuerySnapshot;
 import 'package:flutter/foundation.dart';
 
-import '../../core/constants/app_constants.dart';
 import '../../core/constants/app_enums.dart';
 import '../../core/constants/firestore_collections.dart';
 import '../../core/errors/app_exceptions.dart';
@@ -78,7 +77,6 @@ class DemoDataSeeder {
     if (snapshot.docs.isNotEmpty) return;
 
     final WriteBatch batch = _service.instance.batch();
-    final DateTime now = DateTime.now();
 
     final List<ProductModel> products = <ProductModel>[
       _product(
@@ -269,8 +267,8 @@ class DemoDataSeeder {
       sellerName: sellerName,
       sellerWhatsappNumber: sellerWhatsapp,
       isActive: true,
-      createdAt: now.subtract(Duration(days: daysAgo)),
-      updatedAt: now.subtract(Duration(days: daysAgo)),
+      createdAt: DateTime.now().subtract(Duration(days: daysAgo)),
+      updatedAt: DateTime.now().subtract(Duration(days: daysAgo)),
     );
   }
 }

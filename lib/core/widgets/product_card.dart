@@ -6,7 +6,7 @@ import '../../app/theme/app_radius.dart';
 import '../../app/theme/app_spacing.dart';
 import '../../app/theme/app_typography.dart';
 import '../../models/product_model.dart';
-import 'price_text.dart';
+import 'display_price.dart';
 
 /// Carte produit du catalogue (grilles et carrousels horizontaux).
 ///
@@ -48,7 +48,10 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            _ProductImage(product: product),
+            Hero(
+              tag: 'product-image-${product.id}',
+              child: _ProductImage(product: product),
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
@@ -72,7 +75,7 @@ class ProductCard extends StatelessWidget {
                     Row(
                       children: <Widget>[
                         Expanded(
-                          child: PriceText(
+                          child: DisplayPrice(
                             amount: product.price,
                             oldAmount: product.oldPrice,
                             currency: product.currency,
@@ -121,12 +124,12 @@ class _ProductImage extends StatelessWidget {
                 Container(color: colorScheme.surfaceContainerHighest),
             errorWidget: (BuildContext context, String url, Object error) =>
                 Container(
-              color: colorScheme.surfaceContainerHighest,
-              child: Icon(
-                Icons.image_outlined,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
+                  color: colorScheme.surfaceContainerHighest,
+                  child: Icon(
+                    Icons.image_outlined,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
           ),
           if (product.hasDiscount)
             Positioned(
@@ -153,8 +156,10 @@ class _ProductImage extends StatelessWidget {
               color: Colors.black38,
               alignment: Alignment.center,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black54,
                   borderRadius: AppRadius.rFull,
@@ -191,10 +196,7 @@ class _Badge extends StatelessWidget {
         color: background,
         borderRadius: AppRadius.rFull,
       ),
-      child: Text(
-        label,
-        style: AppTypography.labelSmall(color: foreground),
-      ),
+      child: Text(label, style: AppTypography.labelSmall(color: foreground)),
     );
   }
 }
@@ -215,10 +217,12 @@ class _QuickAddButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         iconSize: 18,
         style: IconButton.styleFrom(
-          backgroundColor:
-              enabled ? AppColors.primary : Theme.of(context).colorScheme.surfaceContainerHighest,
-          foregroundColor:
-              enabled ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
+          backgroundColor: enabled
+              ? AppColors.primary
+              : Theme.of(context).colorScheme.surfaceContainerHighest,
+          foregroundColor: enabled
+              ? Colors.white
+              : Theme.of(context).colorScheme.onSurfaceVariant,
           shape: const RoundedRectangleBorder(borderRadius: AppRadius.rMd),
         ),
         tooltip: 'Ajouter au panier',

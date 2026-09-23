@@ -38,7 +38,7 @@ class UnauthorizedException extends AppException {
 
 /// Erreur Firestore (lecture, écriture, droits, indisponibilité).
 class FirestoreException extends AppException {
-  const FirestoreException({String? message, String? code})
+  const FirestoreException(String s, {String? message, String? code})
       : super(
           message ?? 'Une erreur est survenue lors de l\'accès aux données. Réessayez.',
           code: code ?? 'firestore',

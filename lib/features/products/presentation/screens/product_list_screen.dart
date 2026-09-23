@@ -24,7 +24,7 @@ class ProductListScreen extends ConsumerStatefulWidget {
   const ProductListScreen({
     super.key,
     this.initialCategoryId,
-    this.initialQuery = '',
+    this.initialQuery = '', String? initialSellerId,
   });
 
   final String? initialCategoryId;
@@ -40,8 +40,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
     categoryId: widget.initialCategoryId,
   );
 
-  final TextEditingController _searchController =
-      TextEditingController(text: widget.initialQuery);
+  late final TextEditingController _searchController = TextEditingController(text: widget.initialQuery);
 
   @override
   void dispose() {

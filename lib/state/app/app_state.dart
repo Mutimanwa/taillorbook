@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../services/whatsapp_service.dart';
+
 /// Indique si Firebase a démarré correctement.
 ///
 /// La valeur réelle est injectée dans `main()` via `ProviderScope.overrides`
@@ -11,3 +13,7 @@ final StateProvider<bool> firebaseReadyProvider =
 /// Mode de thème actif (clair / système / sombre), modifiable depuis le profil.
 final StateProvider<ThemeMode> themeModeProvider =
     StateProvider<ThemeMode>((Ref ref) => ThemeMode.light);
+
+/// Service WhatsApp partagé (une seule instance).
+final Provider<WhatsAppService> whatsappServiceProvider =
+    Provider<WhatsAppService>((Ref ref) => WhatsAppService());
