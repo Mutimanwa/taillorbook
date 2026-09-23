@@ -15,7 +15,6 @@ import '../../../../core/utils/product_filters.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_skeleton.dart';
 import '../../../../core/widgets/product_card.dart';
-import '../../../../core/widgets/product_quick_view.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../models/category_model.dart';
 import '../../../../models/product_model.dart';
@@ -469,7 +468,7 @@ class _ProductRail extends ConsumerWidget {
           return ProductCard(
             product: product,
             width: 172,
-            onTap: () => showProductQuickView(context, product.id),
+            onTap: () => context.push(AppRoutes.productDetails(product.id)),
             onAddToCart: () => _addToCart(context, ref, product),
           );
         },
@@ -555,27 +554,33 @@ class _WhySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // IntrinsicHeight borne la hauteur du Row (dans une vue scrollable la
+    // hauteur entrante est infinie : `stretch` seul forcerait une hauteur
+    // infinie sur les cartes → exception de layout). Les deux cartes
+    // conservent ainsi la même hauteur, alignée sur la plus haute.
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pagePadding),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: _WhyCard(
-              icon: Icons.verified_user_outlined,
-              title: 'Achats sécurisés',
-              description: 'Paiement vérifié avant confirmation de commande.',
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Expanded(
+              child: _WhyCard(
+                icon: Icons.verified_user_outlined,
+                title: 'Achats sécurisés',
+                description: 'Paiement vérifié avant confirmation de commande.',
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: _WhyCard(
-              icon: Icons.local_shipping_outlined,
-              title: 'Livraison ou retrait',
-              description: 'Choisissez votre mode de réception préféré.',
+            const SizedBox(width: 10),
+            Expanded(
+              child: _WhyCard(
+                icon: Icons.local_shipping_outlined,
+                title: 'Livraison ou retrait',
+                description: 'Choisissez votre mode de réception préféré.',
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

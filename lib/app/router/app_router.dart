@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taillorbook/features/checkout/presentation/screens/order_success.dart';
 import 'package:taillorbook/features/seller/presentation/screens/seller_oders_screen.dart';
-import 'package:taillorbook/models/order_model.dart';
 
 import '../../core/constants/app_routes.dart';
 import '../../core/widgets/main_scaffold.dart';
@@ -23,6 +22,7 @@ import '../../features/seller/presentation/screens/product_form_screen.dart';
 import '../../features/seller/presentation/screens/seller_dashboard_screen.dart';
 import '../../features/seller/presentation/screens/seller_products_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
+import '../../models/order_model.dart';
 import '../../state/auth/auth_providers.dart';
 import 'app_transitions.dart';
 

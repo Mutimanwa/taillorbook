@@ -14,9 +14,11 @@ import '../../../../core/constants/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/currency_picker.dart';
 import '../../../../models/user_model.dart';
 import '../../../../state/app/app_state.dart';
 import '../../../../state/auth/auth_providers.dart';
+import '../../../../state/currency/currency_providers.dart';
 
 /// Onglet Profil : carte de compte (invité ou connecté, avec badge de rôle),
 /// préférences (thème clair/sombre), accès aux commandes et à l'espace
@@ -59,9 +61,7 @@ class ProfileScreen extends ConsumerWidget {
                       label: 'Mon espace vendeur',
                       variant: AppButtonVariant.secondary,
                       icon: Icons.storefront_rounded,
-                      onPressed: () => context.showAppSnack(
-                        "L'espace vendeur arrive à la phase 5 du projet.",
-                      ),
+                      onPressed: () => context.push(AppRoutes.sellerDashboard),
                     ),
                   if (profile?.role == UserRole.seller)
                     const SizedBox(height: 10),
@@ -81,6 +81,20 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
                 _SettingsCard(
                   children: <Widget>[
+                    ListTile(
+                      leading: const Icon(Icons.currency_exchange_rounded),
+                      title: const Text("Devise d'affichage"),
+                      subtitle: const Text(
+                        'Taux fixes de démonstration (BIF / USD / EUR)',
+                      ),
+                      trailing: Text(
+                        ref.watch(displayCurrencyProvider).symbol,
+                        style: context.appTextTheme.titleMedium?.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      onTap: () => showCurrencyPickerSheet(context),
+                    ),
                     SwitchListTile(
                       value: themeMode == ThemeMode.dark,
                       onChanged: (bool value) {

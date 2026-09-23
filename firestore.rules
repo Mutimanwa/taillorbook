@@ -1,0 +1,123 @@
+rules_version = '2';
+// ============================================================================
+// SokoMarket — Règles de sécurité Cloud Firestore
+// ============================================================================
+//
+// Modèle d'accès (cahier des charges §23) :
+//   • VISITEUR    : lecture du catalogue (produits actifs, catégories) ;
+//   • CLIENT      : lecture/création de SES commandes uniquement ;
+//   • VENDEUR     : création de produits + gestion de SES produits
+//                   uniquement, lecture des commandes contenant SES produits ;
+//   • UTILISATEUR : lecture/écriture de SON profil uniquement.
+//
+// ⚠️ Aucun `allow read, write: if true` — le refus est la règle par défaut.
+//
+// Déploiement : voir docs/FIREBASE_SETUP.md
+//   firebase deploy --only firestore:rules
+//
+// NOTE : le jeu de données de démonstration (DemoDataSeeder) s'exécute depuis
+// l'application et nécessite des droits d'écriture : importez-le AVANT de
+// déployer ces règles, ou créez les documents via la console Firebase
+// (procédure détaillée dans docs/FIREBASE_SETUP.md).
+// ============================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ------------------------------------------------------------ utilitaires
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isSelf(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    // Rôle stocké dans users/{uid}. Un `get()` par opération d'écriture
+    // produit/commande : acceptable pour une marketplace de démonstration.
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    function isSeller() {
+      return isSignedIn() && userRole() == 'seller';
+    }
+    // ------------------------------------------------------------------ users
+    // Profil personnel : jamais lisible ni modifiable par autrui.
+    // Le rôle est figé après l'inscription (v1) : un client ne peut pas
+    // s'auto-promouvoir vendeur par simple édition du document.
+    match /users/{userId} {
+      allow read: if isSelf(userId);
+      allow create: if isSelf(userId)
+        && request.resource.data.role in ['client', 'seller'];
+      allow update: if isSelf(userId)
+        && request.resource.data.role == resource.data.role;
+      allow delete: if false;
+    }
+    // --------------------------------------------------------------- produits
+    // Lecture publique des produits ACTIFS uniquement (le catalogue est
+    // consultable sans compte). Un vendeur lit également ses propres
+    // produits, actifs ou non.
+    //
+    // ⚠️ Les règles Firestore ne sont pas des filtres : la requête publique
+    // de l'application ajoute `.where('isActive', '==', true)` pour que la
+    // lecture reste valide (voir ProductRepository.watchActiveProducts).
+    match /products/{productId} {
+      allow read: if resource.data.isActive == true
+        || (isSeller() && resource.data.sellerId == request.auth.uid);
+      // Création : vendeur authentifié, propriétaire = lui-même, données
+      // minimales validées (prix > 0, stock entier >= 0, image requise).
+      allow create: if isSeller()
+        && request.resource.data.sellerId == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.description is string
+        && request.resource.data.price is number
+        && request.resource.data.price > 0
+        && request.resource.data.stock is int
+        && request.resource.data.stock >= 0
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.size() > 0
+        && request.resource.data.isActive == true;
+      // Modification : uniquement SES produits, sans réassignation du
+      // propriétaire.
+      allow update: if isSeller()
+        && resource.data.sellerId == request.auth.uid
+        && request.resource.data.sellerId == resource.data.sellerId;
+      // Suppression : uniquement SES produits.
+      allow delete: if isSeller()
+        && resource.data.sellerId == request.auth.uid;
+    }
+    // -------------------------------------------------------------- commandes
+    // Un client crée et lit SES commandes ; un vendeur lit celles qui
+    // contiennent SES produits (champ sellerId dénormalisé). v1 : le client
+    // ne modifie plus une commande après création ; le vendeur peut
+    // uniquement faire évoluer le statut de commande.
+    match /orders/{orderId} {
+      allow read: if isSignedIn()
+        && (resource.data.clientId == request.auth.uid
+            || (userRole() == 'seller'
+                && resource.data.sellerId == request.auth.uid));
+      allow create: if isSignedIn()
+        && request.resource.data.clientId == request.auth.uid
+        && request.resource.data.orderStatus == 'pending'
+        && request.resource.data.total is number
+        && request.resource.data.total > 0
+        && request.resource.data.items.size() > 0;
+      // Évolution du cycle de vie par le vendeur concerné : statut seul.
+      allow update: if isSeller()
+        && resource.data.sellerId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['orderStatus', 'updatedAt']);
+      allow delete: if false;
+    }
+    // ------------------------------------------------------------- catégories
+    // Lecture publique ; écritures réservées à l'administration (console
+    // Firebase ou SDK Admin) — l'application v1 ne crée pas de catégories.
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    // ------------------------------------------------------- refus par défaut
+    // Toute autre collection (favorites, reviews, notifications futures...)
+    // est refusée tant que des règles dédiées ne sont pas ajoutées.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
