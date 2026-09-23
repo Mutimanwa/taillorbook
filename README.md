@@ -1,17 +1,36 @@
-# taillorbook
+# SokoMarket 🛍️
 
-A new Flutter project.
+Marketplace mobile e-commerce complète — **Flutter + Dart + Firebase + ImgBB + WhatsApp**.
 
-## Getting Started
+- 👀 **Visiteurs** : parcours du catalogue sans compte, recherche, détails produit
+- 🛒 **Clients** : panier, multi-devises (BIF / USD / EUR), livraison ou retrait,
+  paiement simulé, historique de commandes, récapitulatif WhatsApp au vendeur
+- 🏪 **Vendeurs** : espace dédié, publication et gestion de leurs produits
+  (images hébergées sur ImgBB), suivi des commandes qui les concernent
 
-This project is a starting point for a Flutter application.
+> Projet académique : paiement **strictement simulé**, taux de change **fixes de
+> démonstration** — aucune transaction réelle.
 
-A few resources to get you started if this is your first Flutter project:
+## Démarrage rapide
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```bash
+flutter pub get
+flutter run                # mode démonstration (sans Firebase configuré)
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Avec Firebase + ImgBB :
+
+```bash
+flutterfire configure      # écrit lib/config/firebase/firebase_options.dart
+flutter run --dart-define=IMGBB_API_KEY=votre_cle_imgbb
+```
+
+Consultez **[ARCHITECTURE.md](ARCHITECTURE.md)** pour l'architecture technique,
+le schéma Firestore, le design system et le plan d'implémentation détaillé.
+
+## Qualité
+
+```bash
+flutter analyze
+flutter test
+```

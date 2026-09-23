@@ -1,189 +1,193 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:taillorbook/core/theme/app_colors.dart';
-import 'package:taillorbook/core/theme/app_typography.dart';
 
-class LoginScreen extends StatelessWidget {
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_radius.dart';
+import '../../../../app/theme/app_typography.dart';
+import '../../../../core/constants/app_assets.dart';
+import '../../../../core/constants/app_routes.dart';
+import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../state/auth/auth_providers.dart';
+
+/// Écran de connexion : email + mot de passe, lien « mot de passe oublié »
+/// et redirection vers l'inscription. Les visiteurs peuvent aussi revenir à
+/// l'accueil sans compte.
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  /// Destination d'origine (route protégée tentée avant redirection).
+  String? _from;
+  bool _fromResolved = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_fromResolved) {
+      _from = GoRouterState.of(context).uri.queryParameters['from'];
+      _fromResolved = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    context.hideKeyboard();
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final bool success = await ref.read(authControllerProvider.notifier).signIn(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+    if (!mounted) return;
+
+    if (success) {
+      context.showAppSnack('Connexion réussie. Bon retour !', AppSnackType.success);
+      context.go(_from ?? AppRoutes.home);
+    } else {
+      final String? message =
+          authErrorMessage(ref.read(authControllerProvider));
+      context.showAppSnack(message ?? 'Connexion impossible.', AppSnackType.error);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final AsyncValue<void> authState = ref.watch(authControllerProvider);
+
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      appBar: AppBar(title: const Text('Connexion')),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 60),
-              // Logo Placeholder
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: AppColors.black,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(
-                  Icons.content_cut,
-                  color: AppColors.gold,
-                  size: 50,
-                ),
-              ),
-              const SizedBox(height: 32),
-              Text(
-                'Connectez-vous à votre compte',
-                style: AppTypography.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Ravie de vous revoir, veuillez entrer vos coordonnées.',
-                style: AppTypography.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-              _buildLabel('Adresse Email'),
-              const SizedBox(height: 8),
-              const TextField(
-                decoration: InputDecoration(hintText: 'john.doe@gmail.com'),
-              ),
-              const SizedBox(height: 24),
-              _buildLabel('Mot de passe'),
-              const SizedBox(height: 8),
-              const TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: '••••••••••••',
-                  suffixIcon: Icon(Icons.visibility_outlined, size: 20),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: true,
-                        onChanged: (v) {},
-                        activeColor: AppColors.black,
-                      ),
-                      Text(
-                        'Se souvenir de moi',
-                        style: AppTypography.bodyMedium,
-                      ),
-                    ],
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Mot de passe oublié ?',
-                      style: AppTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.black,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Center(
+                      child: ClipRRect(
+                        borderRadius: AppRadius.rXl,
+                        child: Image.asset(
+                          AppAssets.logo,
+                          width: 84,
+                          height: 84,
+                          fit: BoxFit.cover,
+                          errorBuilder: (
+                            BuildContext context,
+                            Object error,
+                            StackTrace? stackTrace,
+                          ) {
+                            return const Icon(
+                              Icons.storefront_rounded,
+                              size: 80,
+                              color: AppColors.primary,
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  context.go('/home');
-                },
-                child: const Text('Se connecter'),
-              ),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  const Expanded(child: Divider(color: AppColors.greySubtle)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('OU', style: AppTypography.bodyMedium),
-                  ),
-                  const Expanded(child: Divider(color: AppColors.greySubtle)),
-                ],
-              ),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _socialIcon(Icons.g_mobiledata, AppColors.black),
-                  _socialIcon(Icons.facebook, AppColors.black),
-                  _socialIcon(Icons.apple, AppColors.black),
-                ],
-              ),
-              const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Vous n\'avez pas de compte ? ',
-                    style: AppTypography.bodyMedium,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                    },
-                    child: Text(
-                      'S\'inscrire',
-                      style: AppTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.black,
+                    const SizedBox(height: 20),
+                    Text(
+                      'Bon retour !',
+                      style: AppTypography.headlineMedium(),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Connectez-vous pour acheter et suivre vos commandes.',
+                      style: AppTypography.bodyMedium(),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 28),
+                    AppTextField(
+                      controller: _emailController,
+                      hintText: 'Adresse email',
+                      prefixIcon: Icons.mail_outline_rounded,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      validator: Validators.email,
+                      enabled: !authState.isLoading,
+                    ),
+                    const SizedBox(height: 14),
+                    AppTextField(
+                      controller: _passwordController,
+                      hintText: 'Mot de passe',
+                      prefixIcon: Icons.lock_outline_rounded,
+                      obscureText: true,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _submit(),
+                      validator: Validators.password,
+                      enabled: !authState.isLoading,
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: authState.isLoading
+                            ? null
+                            : () => context.push(AppRoutes.forgotPassword),
+                        child: const Text('Mot de passe oublié ?'),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              TextButton(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  context.go('/home');
-                },
-                child: Text(
-                  'Continuer en tant qu\'invité',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.black.withOpacity(0.5),
-                    decoration: TextDecoration.underline,
-                  ),
+                    const SizedBox(height: 10),
+                    AppButton(
+                      label: 'Se connecter',
+                      loading: authState.isLoading,
+                      onPressed: _submit,
+                    ),
+                    const SizedBox(height: 22),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "Pas encore de compte ?",
+                          style: AppTypography.bodyMedium(),
+                        ),
+                        TextButton(
+                          onPressed: authState.isLoading
+                              ? null
+                              : () => context.push(AppRoutes.register),
+                          child: const Text('Créer un compte'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    TextButton(
+                      onPressed: () => context.go(AppRoutes.home),
+                      child: Text(
+                        'Continuer en visiteur',
+                        style: AppTypography.bodyMedium(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 40),
-            ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildLabel(String label) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        label,
-        style: AppTypography.bodyMedium.copyWith(
-          fontWeight: FontWeight.w600,
-          color: AppColors.black.withOpacity(0.7),
-        ),
-      ),
-    );
-  }
-
-  Widget _socialIcon(IconData icon, Color color) {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.greySubtle),
-      ),
-      child: Icon(icon, color: color, size: 30),
     );
   }
 }
