@@ -1,98 +1,79 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:taillorbook/core/theme/app_colors.dart';
 
+import '../../app/theme/app_colors.dart';
+import '../../state/cart/cart_providers.dart';
+
+/// Coquille de navigation principale : barre inférieure à 5 sections
+/// (Accueil, Catégories, Panier, Commandes, Profil) avec badge du panier.
 class MainScaffold extends StatelessWidget {
-  final Widget child;
+  const MainScaffold({super.key, required this.navigationShell});
 
-  const MainScaffold({super.key, required this.child});
+  final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context) {
-    final location = GoRouterState.of(context).uri.path;
-
     return Scaffold(
-      body: child,
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -10),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Container(
-            height: 64,
-            decoration: BoxDecoration(
-              color: AppColors.black,
-              borderRadius: BorderRadius.circular(32),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                  context,
-                  Icons.home_outlined,
-                  Icons.home,
-                  '/home',
-                  location,
-                ),
-                _buildNavItem(
-                  context,
-                  Icons.grid_view_outlined,
-                  Icons.grid_view,
-                  '/collections',
-                  location,
-                ),
-                _buildNavItem(
-                  context,
-                  Icons.favorite_outline,
-                  Icons.favorite,
-                  '/favorites',
-                  location,
-                ),
-                _buildNavItem(
-                  context,
-                  Icons.person_outline,
-                  Icons.person,
-                  '/profile',
-                  location,
-                ),
-              ],
-            ),
-          ),
-        ),
+      body: navigationShell,
+      bottomNavigationBar: Consumer(
+        builder: (BuildContext context, WidgetRef ref, _) {
+          final int cartCount = ref.watch(cartTotalItemsProvider);
+          return NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: (int index) {
+              navigationShell.goBranch(
+                index,
+                initialLocation: index == navigationShell.currentIndex,
+              );
+            },
+            destinations: <Widget>[
+              const NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home_rounded),
+                label: 'Accueil',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.category_outlined),
+                selectedIcon: Icon(Icons.category_rounded),
+                label: 'Catégories',
+              ),
+              NavigationDestination(
+                icon: _cartIcon(Icons.shopping_cart_outlined, cartCount),
+                selectedIcon: _cartIcon(Icons.shopping_cart_rounded, cartCount),
+                label: 'Panier',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.receipt_long_outlined),
+                selectedIcon: Icon(Icons.receipt_long_rounded),
+                label: 'Commandes',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.person_outline_rounded),
+                selectedIcon: Icon(Icons.person_rounded),
+                label: 'Profil',
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildNavItem(
-    BuildContext context,
-    IconData icon,
-    IconData activeIcon,
-    String path,
-    String currentPath,
-  ) {
-    final isActive = currentPath == path;
-
-    return Semantics(
-      label: 'Accéder à ${path.replaceAll('/', '')}',
-      button: true,
-      child: IconButton(
-        onPressed: () => context.go(path),
-        icon: Icon(
-          isActive ? activeIcon : icon,
-          color: isActive ? AppColors.gold : Colors.white.withOpacity(0.6),
-          size: 26,
+  /// Icône du panier avec badge de quantité (affiché si > 0).
+  Widget _cartIcon(IconData icon, int count) {
+    if (count <= 0) return Icon(icon);
+    return Badge(
+      backgroundColor: AppColors.secondary,
+      label: Text(
+        '$count',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
         ),
-        tooltip: path.replaceAll('/', '').toUpperCase(),
       ),
+      child: Icon(icon),
     );
   }
 }

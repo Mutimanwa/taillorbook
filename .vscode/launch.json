@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SokoMarket (dev)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "args": ["--dart-define=IMGBB_API_KEY=VOTRE_CLE_IMGBB_ICI"]
+    }
+  ]
+}

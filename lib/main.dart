@@ -1,23 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:flutter_riverpod/provider_scope.dart';
-import 'core/theme/app_theme.dart';
-import 'core/routing/app_router.dart';
 
-void main() {
-  runApp(const ProviderScope(child: MyApp()));
-}
+import 'app/app.dart';
+import 'config/firebase/firebase_bootstrap.dart';
+import 'state/app/app_state.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Chris Couture',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      routerConfig: goRouter,
-    );
-  }
+  // Initialisation de Firebase. En cas d'échec (configuration démo non
+  // remplacée, absence de réseau...), l'application démarre en mode
+  // démonstration : navigation invitée + bannière d'information.
+  final FirebaseBootstrapStatus firebaseStatus =
+      await FirebaseBootstrap.initialize();
+
+  await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
+
+  runApp(
+    ProviderScope(
+      overrides: <Override>[
+        firebaseReadyProvider
+            .overrideWithValue(firebaseStatus == FirebaseBootstrapStatus.ready),
+      ],
+      child: const SokoMarketApp(),
+    ),
+  );
 }
