@@ -43,3 +43,16 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ============================================================
+# Secrets & environnement (ne JAMAIS committer de clés)
+# ============================================================
+.env
+.env.*
+!.env.example
+
+# Firebase (CLI, logs, clés de service)
+.firebase/
+firebase-debug.log
+*-debug.log
+serviceAccountKey*.json
