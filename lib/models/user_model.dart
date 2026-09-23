@@ -1,6 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-
 import '../core/constants/app_enums.dart';
+import '../core/utils/timestamp_utils.dart';
 
 /// Profil utilisateur stocké dans Firestore (`users/{uid}`).
 ///
@@ -55,8 +54,10 @@ class UserModel {
     );
   }
 
-  /// Sérialisation vers Firestore. Si [createdAt] est absent, le dépôt le
-  /// remplace par un timestamp serveur (`FieldValue.serverTimestamp()`).
+  /// Sérialisation vers Firestore. Les `DateTime` sont convertis en
+  /// `Timestamp` automatiquement par le SDK. Si [createdAt] est absent, le
+  /// dépôt le remplace par un timestamp serveur
+  /// (`FieldValue.serverTimestamp()`).
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'name': name,
@@ -65,7 +66,7 @@ class UserModel {
       'role': role.name,
       'whatsappNumber': whatsappNumber,
       if (profileImageUrl != null) 'profileImageUrl': profileImageUrl,
-      if (createdAt != null) 'createdAt': Timestamp.fromDate(createdAt!),
+      if (createdAt != null) 'createdAt': createdAt,
     };
   }
 
@@ -78,15 +79,7 @@ class UserModel {
       role: UserRole.fromName(map['role'] as String?),
       whatsappNumber: map['whatsappNumber'] as String? ?? '',
       profileImageUrl: map['profileImageUrl'] as String?,
-      createdAt: _toDateTime(map['createdAt']),
+      createdAt: TimestampUtils.toDateTime(map['createdAt']),
     );
-  }
-
-  static DateTime? _toDateTime(Object? value) {
-    if (value is Timestamp) return value.toDate();
-    if (value is DateTime) return value;
-    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
-    if (value is String) return DateTime.tryParse(value);
-    return null;
   }
 }

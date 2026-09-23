@@ -98,4 +98,39 @@ void main() {
     expect(container.read(cartProvider), isEmpty);
     expect(container.read(cartTotalItemsProvider), 0);
   });
+
+  group('garde-fou de stock (maxQuantity)', () {
+    test('refus d\'ajouter un produit en rupture (maxQuantity = 0)', () {
+      container
+          .read(cartProvider.notifier)
+          .addItem(_item('p1'), maxQuantity: 0);
+
+      expect(container.read(cartProvider), isEmpty);
+    });
+
+    test('l\'ajout est plafonné au stock disponible', () {
+      container.read(cartProvider.notifier).addItem(
+            _item('p1').copyWith(quantity: 99),
+            maxQuantity: 5,
+          );
+
+      expect(container.read(cartProvider).first.quantity, 5);
+    });
+
+    test('l\'augmentation est plafonnée au stock disponible', () {
+      container.read(cartProvider.notifier).addItem(_item('p1'), maxQuantity: 3);
+      container.read(cartProvider.notifier).increaseQuantity('p1', maxQuantity: 3);
+      container.read(cartProvider.notifier).increaseQuantity('p1', maxQuantity: 3);
+      container.read(cartProvider.notifier).increaseQuantity('p1', maxQuantity: 3);
+
+      expect(container.read(cartProvider).first.quantity, 3);
+    });
+
+    test('la baisse reste possible même au plafond', () {
+      container.read(cartProvider.notifier).addItem(_item('p1'), maxQuantity: 2);
+      container.read(cartProvider.notifier).decreaseQuantity('p1');
+
+      expect(container.read(cartProvider).first.quantity, 1);
+    });
+  });
 }

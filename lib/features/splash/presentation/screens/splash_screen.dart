@@ -1,12 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../config/firebase/demo_data_seeder.dart';
+import '../../../../config/firebase/firebase_bootstrap.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_routes.dart';
+import '../../../../services/firestore_service.dart';
 
 /// Écran de lancement : logo animé (fondu + zoom léger) puis redirection
 /// automatique vers l'accueil. Firebase est déjà initialisé dans `main()` ;

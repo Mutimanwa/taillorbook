@@ -218,7 +218,9 @@ tentées par un visiteur affichent un message et redirigent vers la connexion.
 | `currentUserProvider` / `isAuthenticatedProvider` | `Provider` | Utilisateur courant, garde de routes |
 | `userProfileProvider` | `StreamProvider<UserModel?>` | Profil Firestore (rôle, WhatsApp) |
 | `currencyProvider` | `NotifierProvider<AppCurrency>` | Devise active (persistée) |
-| `categoriesProvider` / `productsProvider` | `StreamProvider` / `FutureProvider` | Catalogue Firestore |
+| `categoriesProvider` / `activeProductsProvider` | `StreamProvider` | Catégories & produits actifs Firestore (temps réel) |
+| `productByIdProvider` | `StreamProvider.family` | Produit par id (temps réel, auto-disposé) |
+| `productCountByCategoryProvider` | `Provider<Map<String, int>>` | Badges « X produits » des catégories |
 | `ordersProvider` / `sellerOrdersProvider` | `StreamProvider` | Historique client / commandes vendeur |
 | `themeModeProvider` | `StateProvider<ThemeMode>` | Thème clair / sombre |
 | `firebaseReadyProvider` | `StateProvider<bool>` | Mode démonstration si Firebase absent |

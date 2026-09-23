@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_enums.dart';
@@ -5,25 +7,35 @@ import '../../models/cart_item_model.dart';
 
 /// État global du panier (Riverpod Notifier, en mémoire).
 ///
-/// La validation du stock et la persistance locale seront branchées lors de
-/// la phase « Panier & devise » — l'API ci-dessous restera identique.
+/// Les quantités sont plafonnées par [maxQuantity] (stock disponible) :
+/// l'ajout au-delà du stock est silencieusement borné.
 class CartNotifier extends Notifier<List<CartItemModel>> {
   @override
   List<CartItemModel> build() => const <CartItemModel>[];
 
-  /// Ajoute un article ; si le produit est déjà présent, augmente sa quantité.
-  void addItem(CartItemModel item) {
-    final int index =
-        state.indexWhere((CartItemModel element) => element.productId == item.productId);
+  /// Ajoute un article ; si le produit est déjà présent, augmente sa quantité
+  /// sans dépasser [maxQuantity] (stock disponible).
+  void addItem(CartItemModel item, {int? maxQuantity}) {
+    if (maxQuantity != null && maxQuantity <= 0) return; // produit en rupture
+
+    final int index = state
+        .indexWhere((CartItemModel element) => element.productId == item.productId);
 
     if (index == -1) {
-      state = <CartItemModel>[...state, item];
+      final int quantity =
+          maxQuantity == null ? item.quantity : math.min(item.quantity, maxQuantity);
+      if (quantity <= 0) return;
+      state = <CartItemModel>[...state, item.copyWith(quantity: quantity)];
       return;
     }
 
     final CartItemModel existing = state[index];
+    int target = existing.quantity + item.quantity;
+    if (maxQuantity != null) target = math.min(target, maxQuantity);
+    if (target <= existing.quantity) return; // déjà au maximum du stock
+
     final List<CartItemModel> updated = <CartItemModel>[...state];
-    updated[index] = existing.copyWith(quantity: existing.quantity + item.quantity);
+    updated[index] = existing.copyWith(quantity: target);
     state = updated;
   }
 
@@ -34,12 +46,13 @@ class CartNotifier extends Notifier<List<CartItemModel>> {
         .toList();
   }
 
-  void increaseQuantity(String productId) => _adjustQuantity(productId, 1);
+  void increaseQuantity(String productId, {int? maxQuantity}) =>
+      _adjustQuantity(productId, 1, maxQuantity: maxQuantity);
 
   void decreaseQuantity(String productId) => _adjustQuantity(productId, -1);
 
   /// Fixe une quantité précise (0 ⇒ retrait de la ligne).
-  void setQuantity(String productId, int quantity) {
+  void setQuantity(String productId, int quantity, {int? maxQuantity}) {
     if (quantity <= 0) {
       removeItem(productId);
       return;
@@ -47,23 +60,29 @@ class CartNotifier extends Notifier<List<CartItemModel>> {
     final int index =
         state.indexWhere((CartItemModel element) => element.productId == productId);
     if (index == -1) return;
+    int capped = quantity;
+    if (maxQuantity != null) capped = math.min(capped, maxQuantity);
     final List<CartItemModel> updated = <CartItemModel>[...state];
-    updated[index] = state[index].copyWith(quantity: quantity);
+    updated[index] = state[index].copyWith(quantity: capped);
     state = updated;
   }
 
   void clearCart() => state = const <CartItemModel>[];
 
-  void _adjustQuantity(String productId, int delta) {
+  void _adjustQuantity(String productId, int delta, {int? maxQuantity}) {
     final int index =
         state.indexWhere((CartItemModel element) => element.productId == productId);
     if (index == -1) return;
 
-    final int newQuantity = state[index].quantity + delta;
+    int newQuantity = state[index].quantity + delta;
+    if (maxQuantity != null && delta > 0) {
+      newQuantity = math.min(newQuantity, maxQuantity);
+    }
     if (newQuantity <= 0) {
       removeItem(productId);
       return;
     }
+    if (newQuantity == state[index].quantity) return;
 
     final List<CartItemModel> updated = <CartItemModel>[...state];
     updated[index] = state[index].copyWith(quantity: newQuantity);

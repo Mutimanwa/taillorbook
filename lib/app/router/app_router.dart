@@ -55,6 +55,16 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((Ref ref) {
         builder: (BuildContext context, GoRouterState state) =>
             const ForgotPasswordScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.productList,
+        builder: (BuildContext context, GoRouterState state) {
+          final Map<String, String> query = state.uri.queryParameters;
+          return ProductListScreen(
+            initialCategoryId: query['categoryId'],
+            initialQuery: query['q'] ?? '',
+          );
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (
           BuildContext context,

@@ -21,6 +21,7 @@ class AppRoutes {
 
   // Catalogue (phase 6)
   static const String search = '/search';
+  static const String productList = '/products';
   static String productDetails(String productId) => '/product/$productId';
 
   // Checkout (phases 8 & 9)
