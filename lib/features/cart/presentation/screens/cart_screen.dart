@@ -2,18 +2,24 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:taillorbook/app/theme/app_colors.dart';
+import 'package:taillorbook/app/theme/app_typography.dart';
 
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_shadows.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_enums.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_empty.dart';
+import '../../../../core/widgets/currency_picker.dart';
+import '../../../../core/widgets/display_price.dart';
 import '../../../../core/widgets/price_text.dart';
 import '../../../../models/cart_item_model.dart';
 import '../../../../state/cart/cart_providers.dart';
+import '../../../../state/currency/currency_providers.dart';
 
 /// Onglet Panier : liste des articles, modification des quantités,
 /// sous-total et accès au checkout (activé à la phase « Checkout »).
@@ -40,7 +46,7 @@ class CartScreen extends ConsumerWidget {
     }
 
     final double subtotal = ref.watch(cartSubtotalProvider);
-    final AppCurrency currency = items.first.currency;
+    final AppCurrency displayCurrency = ref.watch(displayCurrencyProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -67,10 +73,8 @@ class CartScreen extends ConsumerWidget {
           ),
           _CartSummary(
             subtotal: subtotal,
-            currency: currency,
-            onCheckout: () => context.showAppSnack(
-              'Le checkout et le paiement seront disponibles très bientôt.',
-            ),
+            currency: displayCurrency,
+            onCheckout: () => context.push(AppRoutes.checkout),
           ),
         ],
       ),
@@ -153,7 +157,7 @@ class _CartItemCard extends ConsumerWidget {
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: PriceText(
+                      child: DisplayPrice(
                         amount: item.unitPrice,
                         currency: item.currency,
                         style: context.appTextTheme.titleSmall,
@@ -279,9 +283,45 @@ class _CartSummary extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 4),
-            Text(
-              "Frais de livraison calculés à l'étape suivante.",
-              style: context.appTextTheme.labelMedium,
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    "Frais de livraison calculés à l'étape suivante.",
+                    style: context.appTextTheme.labelMedium,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => showCurrencyPickerSheet(context),
+                  icon: const Icon(Icons.currency_exchange_rounded, size: 16),
+                  label: Text('Devise : ${currency.symbol}'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    textStyle: AppTypography.labelMedium(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Row(
+              children: <Widget>[
+                const Icon(
+                  Icons.info_outline_rounded,
+                  size: 13,
+                  color: AppColors.textDisabled,
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    AppConstants.currencyRatesDisclaimer,
+                    style: context.appTextTheme.labelSmall
+                        ?.copyWith(fontSize: 10),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: AppSpacing.md),
             AppButton(

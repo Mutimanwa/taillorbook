@@ -223,7 +223,16 @@ class CheckoutController extends Notifier<CheckoutState> {
       sellerName: first.sellerName,
       sellerWhatsappNumber: first.sellerWhatsappNumber,
       items: items
-          .map((CartItemModel item) => OrderItemModel.fromCart(item as CartItemLike))
+          .map(
+            (CartItemModel item) => OrderItemModel.fromCart(
+              productId: item.productId,
+              productName: item.productName,
+              imageUrl: item.imageUrl,
+              unitPrice: item.unitPrice,
+              currency: item.currency,
+              quantity: item.quantity,
+            ),
+          )
           .toList(),
       subtotal: ref.read(cartSubtotalProvider),
       deliveryFee: deliveryFee,
@@ -246,6 +255,9 @@ class CheckoutController extends Notifier<CheckoutState> {
       return null;
     } on AppException catch (error) {
       return error.message;
+    } catch (_) {
+      // Erreur Firebase brute (ex. permission-denied) : message guidé.
+      return "Impossible d'enregistrer la commande (base de données).";
     }
   }
 

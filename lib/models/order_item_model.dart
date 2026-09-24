@@ -62,26 +62,25 @@ class OrderItemModel {
     );
   }
 
-  /// Construit la ligne de commande depuis une ligne de panier.
-  factory OrderItemModel.fromCart(CartItemLike item) {
+  /// Construit la ligne de commande depuis les champs d'une ligne de
+  /// panier. Mapping explicite champ à champ : aucun couplage de types
+  /// entre modèles (les vérifications de sous-typage à l'exécution du
+  /// compilateur web ont montré leurs limites ici).
+  factory OrderItemModel.fromCart({
+    required String productId,
+    required String productName,
+    required String imageUrl,
+    required double unitPrice,
+    required AppCurrency currency,
+    required int quantity,
+  }) {
     return OrderItemModel(
-      productId: item.productId,
-      productName: item.productName,
-      imageUrl: item.imageUrl,
-      unitPrice: item.unitPrice,
-      currency: item.currency,
-      quantity: item.quantity,
+      productId: productId,
+      productName: productName,
+      imageUrl: imageUrl,
+      unitPrice: unitPrice,
+      currency: currency,
+      quantity: quantity,
     );
   }
-}
-
-/// Structure minimale attendue d'une ligne de panier (découple le modèle
-/// du provider Riverpod pour les tests).
-abstract class CartItemLike {
-  String get productId;
-  String get productName;
-  String get imageUrl;
-  double get unitPrice;
-  AppCurrency get currency;
-  int get quantity;
 }

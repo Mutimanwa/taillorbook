@@ -48,10 +48,7 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Hero(
-              tag: 'product-image-${product.id}',
-              child: _ProductImage(product: product),
-            ),
+            _ProductImage(product: product),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),

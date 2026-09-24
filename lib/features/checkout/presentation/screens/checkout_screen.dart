@@ -286,7 +286,7 @@ class _CheckoutFlowState extends ConsumerState<_CheckoutFlow> {
         ],
       ),
       bottomNavigationBar:
-          !state.processingPayment && state.step >= 1
+          !state.processingPayment
               ? Container(
                   decoration: BoxDecoration(
                     color: context.appColorScheme.surface,
@@ -299,6 +299,7 @@ class _CheckoutFlowState extends ConsumerState<_CheckoutFlow> {
                     AppSpacing.sm + MediaQuery.paddingOf(context).bottom,
                   ),
                   child: switch (state.step) {
+                    0 => AppButton(label: 'Continuer', onPressed: _goNext),
                     1 => AppButton(label: 'Continuer', onPressed: _goNext),
                     2 => AppButton(
                         label: state.isDelivery
