@@ -7,6 +7,7 @@ import '../../../../core/constants/app_routes.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/utils/error_messages.dart';
 import '../../../../core/widgets/app_skeleton.dart';
 import '../../../../core/widgets/order_card.dart';
 import '../../../../models/order_model.dart';
@@ -28,7 +29,7 @@ class SellerOrdersScreen extends ConsumerWidget {
       body: ordersAsync.when(
         loading: () => const AppLoading(message: 'Chargement des commandes…'),
         error: (Object error, StackTrace stackTrace) => AppError(
-          message: 'Impossible de charger vos commandes.',
+          message: appErrorMessage(error),
           onRetry: () => ref.invalidate(sellerOrdersProvider),
         ),
         data: (List<OrderModel>? orders) {

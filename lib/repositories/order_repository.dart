@@ -1,4 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseException, QuerySnapshot, QueryDocumentSnapshot, DocumentSnapshot;
+import 'package:cloud_firestore/cloud_firestore.dart' show FirebaseException, FieldValue, QuerySnapshot, QueryDocumentSnapshot, DocumentSnapshot;
+import 'package:taillorbook/core/constants/app_enums.dart';
 
 import '../config/firebase/firebase_bootstrap.dart';
 import '../core/constants/firestore_collections.dart';
@@ -24,6 +25,36 @@ class OrderRepository {
           .collection(FirestoreCollections.orders)
           .doc(order.orderId)
           .set(order.toMap());
+    } on FirebaseException catch (error) {
+      throw FirestoreException( error.code);
+    }
+  }
+
+  /// Change le statut d'une commande (action vendeur).
+  ///
+  /// Seuls `orderStatus` et `updatedAt` sont écrits : les règles Firestore
+  /// (firestore.rules) rejettent toute autre modification d'une commande
+  /// par un vendeur. La lecture temps réel propage immédiatement le nouveau
+  /// statut au client et à la liste vendeur.
+  Future<void> updateOrderStatus({
+    
+    required String orderId,
+    required OrderStatus status,
+  }) async {
+    if (!FirebaseBootstrap.isReady) {
+      throw const FirestoreException(
+       "Firebase n'est pas configuré : le statut n'a pas pu être "
+            'enregistré.',
+      );
+    }
+    try {
+      await _service
+          .collection(FirestoreCollections.orders)
+          .doc(orderId)
+          .update(<String, dynamic>{
+        'orderStatus': status.name,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
     } on FirebaseException catch (error) {
       throw FirestoreException( error.code);
     }

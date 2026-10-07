@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:taillorbook/core/utils/date_formater.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/constants/app_enums.dart';
 import '../../../../core/extensions/context_extensions.dart';
@@ -104,6 +106,10 @@ class _OrderDetailsView extends ConsumerWidget {
       children: <Widget>[
         _StatusHeader(order: order),
         const SizedBox(height: 12),
+        if (isSellerView) ...<Widget>[
+          _SellerStatusCard(order: order),
+          const SizedBox(height: 12),
+        ],
         if (isSellerView) ...<Widget>[
           _Section(
             title: 'Client',
@@ -438,3 +444,168 @@ class _AmountRow extends ConsumerWidget {
     );
   }
 }
+
+
+/// Carte de gestion vendeur : statut actuel + ouverture du sélecteur.
+/// L'écriture Firestore est limitée aux champs orderStatus + updatedAt
+/// (règles de sécurité) ; la lecture temps réel propage le changement au
+/// client et aux listes vendeur sans rechargement manuel.
+class _SellerStatusCard extends ConsumerWidget {
+  const _SellerStatusCard({required this.order});
+
+  final OrderModel order;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Color statusColor = orderStatusColor(order.orderStatus);
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: context.appColorScheme.surface,
+        borderRadius: AppRadius.rLg,
+        border: Border.all(color: context.appColorScheme.outline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Gestion de la commande',
+            style: AppTypography.titleSmall(color: AppColors.primary),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  borderRadius: AppRadius.rFull,
+                ),
+                child: Text(
+                  order.orderStatus.label,
+                  style: AppTypography.labelSmall(color: Colors.white),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                'Statut actuel',
+                style: AppTypography.labelSmall(
+                  color: context.appColorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          AppButton(
+            label: 'Changer le statut',
+            variant: AppButtonVariant.secondary,
+            icon: Icons.edit_rounded,
+            onPressed: () => showOrderStatusPicker(context, ref, order),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Sélecteur de statut (bottom sheet) : cycle de vie complet avec
+/// description de chaque étape. Le tap déclenche l'écriture Firestore.
+Future<void> showOrderStatusPicker(
+  BuildContext context,
+  WidgetRef ref,
+  OrderModel order,
+) {
+  return showModalBottomSheet<void>(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (BuildContext sheetContext) {
+      return SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.lg,
+                  0,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        'Statut de la commande',
+                        style: AppTypography.headlineSmall(),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(sheetContext).pop(),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Le client voit ce statut en temps réel.',
+                    style: AppTypography.bodySmall(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+              ...OrderStatus.values.map(
+                (OrderStatus status) => RadioListTile<OrderStatus>(
+                  value: status,
+                  groupValue: order.orderStatus,
+                  activeColor: AppColors.primary,
+                  title: Text(status.label, style: AppTypography.titleMedium()),
+                  subtitle: Text(_statusHint(status)),
+                  onChanged: (OrderStatus? value) async {
+                    Navigator.of(sheetContext).pop();
+                    if (value == null || value == order.orderStatus) return;
+                    final OrderActionResult result = await updateOrderStatus(
+                      ref,
+                      orderId: order.orderId,
+                      status: value,
+                    );
+                    if (!context.mounted) return;
+                    context.showAppSnack(
+                      result.success
+                          ? 'Statut mis à jour : ${value.label}.'
+                          : (result.error ?? 'Action impossible.'),
+                      result.success ? AppSnackType.success : AppSnackType.error,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+/// Description courte de chaque étape du cycle de vie (affichée sous le
+/// libellé dans le sélecteur).
+String _statusHint(OrderStatus status) => switch (status) {
+      OrderStatus.pending => 'Nouvelle commande, en attente de confirmation.',
+      OrderStatus.confirmed => 'Commande confirmée par la boutique.',
+      OrderStatus.processing => 'Préparation / emballage en cours.',
+      OrderStatus.readyForPickup => 'Prête : retrait possible en boutique.',
+      OrderStatus.shipped => 'Remise au livreur, en cours de livraison.',
+      OrderStatus.delivered => 'Livrée au client.',
+      OrderStatus.cancelled => 'Commande annulée.',
+    };

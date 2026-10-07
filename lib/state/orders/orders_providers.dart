@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart' show User;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taillorbook/core/constants/app_enums.dart';
 
 import '../../core/errors/app_exceptions.dart';
 import '../../models/order_model.dart';
@@ -39,6 +40,40 @@ final StreamProvider<List<OrderModel>?> sellerOrdersProvider =
   if (sellerId == null) return Stream<List<OrderModel>?>.value(null);
   return ref.watch(orderRepositoryProvider).watchSellerOrders(sellerId);
 });
+
+/// Résultat d'une action vendeur sur une commande.
+class OrderActionResult {
+  const OrderActionResult({required this.success, this.error});
+
+  final bool success;
+  final String? error;
+}
+
+/// Change le statut d'une commande (espace vendeur).
+///
+/// Renvoie un [OrderActionResult] : `success` true si Firestore a accepté
+/// l'écriture (champs orderStatus + updatedAt uniquement), sinon un message
+/// d'erreur lisible (règles refusées, Firebase absent…).
+Future<OrderActionResult> updateOrderStatus(
+  WidgetRef ref, {
+  required String orderId,
+  required OrderStatus status,
+}) async {
+  try {
+    await ref
+        .read(orderRepositoryProvider)
+        .updateOrderStatus(orderId: orderId, status: status);
+    return const OrderActionResult(success: true);
+  } on AppException catch (error) {
+    return OrderActionResult(success: false, error: error.message);
+  } catch (_) {
+    return const OrderActionResult(
+      success: false,
+      error:
+          "Impossible de changer le statut (base de données). Réessayez.",
+    );
+  }
+}
 
 /// Persistance d'une commande confirmée.
 ///
